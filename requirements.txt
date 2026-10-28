@@ -1,0 +1,12 @@
+pandas
+networkx
+streamlit
+fastapi
+uvicorn[standard]
+tzdata
+langgraph
+langchain-core
+langchain-openai
+langchain-ollama
+python-dotenv
+pytest

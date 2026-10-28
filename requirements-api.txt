@@ -1,0 +1,9 @@
+# Lean dependencies for the deterministic Render API. Streamlit and LLM client
+# packages remain in requirements.txt for the existing local app.
+fastapi
+uvicorn[standard]
+pandas
+networkx
+langgraph
+python-dotenv
+tzdata

@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: lisbon-journey-planner-api
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements-api.txt && python scripts/install_runtime_data.py
+    startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: CORS_ORIGINS
+        sync: false
+      - key: SMARTCITY_DATA_ARCHIVE_URL
+        sync: false
+      - key: SMARTCITY_DATA_ARCHIVE_SHA256
+        sync: false
