@@ -7,6 +7,7 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
+from smartcity.config import load_settings
 from smartcity.journey_service import search_journey
 from smartcity.map_view import journey_map_data
 from smartcity.modes import default_registry, match_stop_options, municipality_area_option, stop_options

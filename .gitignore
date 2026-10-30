@@ -7,4 +7,5 @@ data/
 runtime-data.zip
 frontend/node_modules/
 frontend/dist/
+frontend/*.tsbuildinfo
 frontend/.env.local
