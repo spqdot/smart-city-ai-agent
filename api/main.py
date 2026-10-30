@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from smartcity.config import load_settings
+from smartcity.data import PLACE_ALIASES, normalize
 from smartcity.journey_service import search_journey
 from smartcity.map_view import journey_map_data
 from smartcity.modes import default_registry, match_stop_options, municipality_area_option, stop_options
@@ -50,14 +51,34 @@ def _all_stop_choices():
     return stop_options(registry, "Any available transport")
 
 
+@lru_cache(maxsize=1)
+def _municipality_names() -> frozenset:
+    names = set()
+    for mode in registry.modes:
+        stops = registry.get(mode).stops
+        if "norm_municipality" in stops:
+            names.update(str(v) for v in stops["norm_municipality"].dropna().unique())
+    return frozenset(names)
+
+
+@lru_cache(maxsize=1)
+def _name_index() -> list:
+    return [(title, normalize(stop.get("name", title)))
+            for title, stop in _all_stop_choices().items()]
+
+
 def _public_stop(stop: dict, label: str | None = None) -> dict:
     return {**stop, "label": label or stop.get("name", "Stop")}
 
 
+@lru_cache(maxsize=512)
 def _suggestions(query: str, limit: int) -> list[dict]:
     if not query.strip():
         return []
-    area = municipality_area_option(registry, query, target_modes=set(registry.modes))
+    needle = normalize(query)
+    area_name = PLACE_ALIASES.get(needle, needle)
+    area = (municipality_area_option(registry, query, target_modes=set(registry.modes))
+            if area_name in _municipality_names() else None)
     if area:
         count = sum(area.get("area_stop_counts", {}).values())
         modes = ", ".join(area.get("area_stop_counts", {}))
@@ -65,7 +86,13 @@ def _suggestions(query: str, limit: int) -> list[dict]:
         return [_public_stop(area, label)]
 
     choices = _all_stop_choices()
-    matches = match_stop_options(choices, query, limit=limit)
+    if needle and any(needle in name for _, name in _name_index()):
+        # Same ordering as match_stop_options: exact names first, then alphabetical.
+        hits = sorted(((title, name) for title, name in _name_index() if needle in name),
+                      key=lambda item: (item[1] != needle, item[1]))
+        matches = [title for title, _ in hits[:limit]]
+    else:
+        matches = match_stop_options(choices, query, limit=limit)
     results = []
     for title in matches:
         stop = choices[title]
@@ -103,6 +130,19 @@ def _validate_place(place: PlaceSelection) -> dict:
     selected["lat"] = info.get("lat", selected["lat"])
     selected["lon"] = info.get("lon", selected["lon"])
     return selected
+
+
+@app.on_event("startup")
+def _warm_up():
+    import threading
+
+    def load():
+        try:
+            _name_index()
+            _municipality_names()
+        except Exception:  # health must stay up even if data is missing
+            pass
+    threading.Thread(target=load, daemon=True).start()
 
 
 @app.get("/api/health")

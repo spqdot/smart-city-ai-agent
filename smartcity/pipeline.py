@@ -333,7 +333,7 @@ def build_pipeline(registry: NetworkRegistry,
         errors = []
         for key in ("origin", "destination"):
             place = state.get(key) or {}
-            area_ids = any(place.get("stop_ids_by_mode", {}).values())
+            area_ids = any((place.get("stop_ids_by_mode") or {}).values())
             if not (place.get("stop_ids") or area_ids
                     or ("lat" in place and "lon" in place)):
                 errors.append(f"Missing {key}: choose a {key} stop.")
@@ -364,7 +364,7 @@ def build_pipeline(registry: NetworkRegistry,
             ends = {}
             for key in ("origin", "destination"):
                 place = state[key]
-                if "stop_ids_by_mode" in place:
+                if place.get("stop_ids_by_mode"):
                     ids = [str(stop_id) for stop_id in
                            place["stop_ids_by_mode"].get(mode, [])
                            if str(stop_id) in network._stop_index]
