@@ -21,7 +21,7 @@ npm install
 npm run dev
 ```
 
-Vite proxies `/api` requests to `http://127.0.0.1:8000`. The journey API uses the same deterministic search service and local timetables as the Streamlit planner.
+Without `frontend/.env`, Vite calls the local API at `http://localhost:8000`. The journey API uses the same deterministic search service and local timetables as the Streamlit planner.
 
 ## Data required by the API
 
@@ -39,17 +39,7 @@ If the runtime bundle is absent, `/api/health` still reports that the process is
 
 ## GitHub repository
 
-GitHub calls this a **repository**, not a folder. This local Git repository currently has no commits and no GitHub remote. Create an empty repository on GitHub (for example, `lisbon-journey-planner`); do not initialize it with a README because this project already has one. Then, from this directory:
-
-```powershell
-git add .
-git commit -m "Prepare Lisbon journey planner for web deployment"
-git branch -M main
-git remote add origin https://github.com/YOUR-USERNAME/lisbon-journey-planner.git
-git push -u origin main
-```
-
-The `.gitignore` keeps `.env`, Python environments, Node build output, pytest scratch files, and all of `data/` out of Git. Never commit API keys.
+The source is hosted at [spqdot/smart-city-ai-agent](https://github.com/spqdot/smart-city-ai-agent). The `.gitignore` keeps `.env`, Python environments, Node build output, pytest scratch files, and all of `data/` out of Git. Never commit API keys.
 
 ## Deploy the backend to Render
 
@@ -70,6 +60,30 @@ VITE_API_URL=https://YOUR-RENDER-SERVICE.onrender.com
 ```
 
 After the frontend deploys, copy its production origin into Render's `CORS_ORIGINS`, then redeploy the backend. The map uses public OpenStreetMap tiles.
+
+## Troubleshooting
+
+### The deployed planner intermittently shows no stop suggestions
+
+The deployed frontend at `https://smart-city-ai-agent.vercel.app` calls the Render API at `https://smart-city-ai-agent.onrender.com`. On Render's Free plan, the API sleeps after inactivity. Its next request may take about a minute while the process and transit data start again.
+
+Wait about a minute and reload the planner. You can verify that the API is ready at:
+
+```text
+https://smart-city-ai-agent.onrender.com/api/health
+```
+
+An `{"status":"ok"}` response means the API is running. To avoid cold starts permanently, use an always-on Render instance.
+
+### The local frontend cannot find stops
+
+Start the API before opening the frontend:
+
+```powershell
+uvicorn api.main:app --reload --port 8000
+```
+
+Then verify `http://localhost:8000/api/health`. The API root (`http://localhost:8000/`) intentionally has no route and returns `{"detail":"Not Found"}`.
 
 ## Existing local Streamlit dashboard
 
