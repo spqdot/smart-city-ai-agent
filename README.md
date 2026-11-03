@@ -51,6 +51,27 @@ The root `render.yaml` defines the FastAPI web service and installs only its lea
 
 Render's build command downloads and installs the bundle into the deployed image, then starts `uvicorn api.main:app`. The `/api/health` route checks process health; use `/docs` to inspect API routes. The free Render web service sleeps when idle and has an ephemeral filesystem, so data is installed during each build instead of being written at runtime. A sleeping free service can take about a minute to wake up.
 
+## Deploy the FastAPI backend to Azure Container Apps
+
+The root `Dockerfile` runs the existing FastAPI entry point on port `8000`. It intentionally excludes the local `data/` directory from the build context and installs the runtime bundle during the image build, matching the existing Render deployment model.
+
+Build the image with an HTTPS archive URL and, optionally, its SHA-256 checksum:
+
+```powershell
+docker build `
+  --build-arg SMARTCITY_DATA_ARCHIVE_URL=https://YOUR-HOST/runtime-data.zip `
+  --build-arg SMARTCITY_DATA_ARCHIVE_SHA256=YOUR_ARCHIVE_SHA256 `
+  --tag YOUR_REGISTRY.azurecr.io/smart-city-ai-agent:latest .
+```
+
+Push that image to a registry Azure Container Apps can pull from, then create or update the Container App to use it. Enable external HTTP ingress with **target port `8000`**. The container command is already configured to run:
+
+```text
+uvicorn api.main:app --host 0.0.0.0 --port 8000
+```
+
+`SMARTCITY_DATA_ARCHIVE_URL` is required at image-build time. `SMARTCITY_DATA_ARCHIVE_SHA256` is optional but recommended. Do not rely on setting these values only as Container App runtime environment variables: the archive installer runs while the image is built, before Streamlit starts. Rebuild and redeploy the image whenever the runtime data bundle changes.
+
 ## Deploy the frontend to Vercel
 
 Import the same GitHub repository as a Vercel project and set **Root Directory** to `frontend`. Vercel detects Vite; use `npm run build` and `dist` if it asks for the build command or output directory. Set the production environment variable:

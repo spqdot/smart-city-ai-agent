@@ -1,7 +1,11 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { CircleMarker, MapContainer, Polyline, TileLayer, Tooltip, useMap } from "react-leaflet";
 
-const API = (import.meta.env.VITE_API_URL || "http://localhost:8000").replace(/\/$/, "");
+const apiUrl = import.meta.env.VITE_API_URL?.trim();
+if (!apiUrl) {
+  throw new Error("VITE_API_URL must be set.");
+}
+const API = apiUrl.replace(/\/$/, "");
 
 type Place = {
   name: string; label: string; mode?: string | null; stop_id?: string | null;
