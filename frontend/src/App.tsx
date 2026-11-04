@@ -75,8 +75,10 @@ function FitMap({ data }: { data: MapData }) {
 function JourneyMap({ data }: { data: MapData }) {
   const center = data.center || [38.72, -9.14];
   return <div className="map-frame"><MapContainer center={center} zoom={11} scrollWheelZoom>
-    <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+    <TileLayer
+      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      url="https://tile.openstreetmap.de/{z}/{x}/{y}.png"
+    />
     <FitMap data={data} />
     {data.paths.map((path, index) => <Polyline key={index}
       positions={path.path.map(([lon, lat]) => [lat, lon] as [number, number])}
