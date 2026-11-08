@@ -1,113 +1,218 @@
-# Lisbon Journey Planner
+# 🚍 Smart City AI Agent – Lisbon Journey Planner
 
-Journey search stays in the existing Python/LangGraph service. The new split deployment uses a FastAPI backend on Render and a React/Vite dashboard on Vercel. The old Streamlit dashboard remains available for local use.
+A Smart City AI-powered public transport journey planning application designed to simplify travel across **Lisbon, Almada, and Setúbal**.
 
-## Run locally
+Built with React, TypeScript, and FastAPI, the application provides timetable-based journey planning, multi-modal transport route discovery, and interactive map visualization. The full-stack application is deployed on **Microsoft Azure**, with automated CI/CD workflows using GitHub Actions.
 
-From the repository root, install the Python requirements and start the API:
+## 🚀 Live Application
 
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-uvicorn api.main:app --reload --port 8000
+Explore the deployed application:
+
+| Component | Live Link |
+|---|---|
+| **Frontend – Azure Static Web Apps** | [Open Lisbon Journey Planner](https://mango-dune-02f8d2603.3.azurestaticapps.net/) |
+| **Frontend – Alternative Link** | [Open Live Demo](https://lnkd.in/eMuRe4Mr) |
+| **Backend – Azure Container Apps** | [Backend API](https://lnkd.in/eeKtxDf7) |
+| **Backend API Documentation** | [Explore API Documentation](https://lnkd.in/eeKtxDf7) |
+| **GitHub Repository** | [Smart City AI Agent](https://github.com/spqdot/smart-city-ai-agent) |
+
+## 🌆 Project Overview
+
+Lisbon Journey Planner is a Smart City transport application that helps users discover public transport journeys across Lisbon, Almada, and Setúbal.
+
+The application connects a React frontend with a FastAPI backend to provide scheduled public transport journey planning. Users can search for stops and destinations, explore available connections, and visualize selected itineraries on an interactive map.
+
+The system supports multi-modal journey planning by combining different public transport services, including metro, trains, buses, and other transport options.
+
+## ✨ Key Features
+
+### 1. Public Transport Stop Search
+- Search for public transport stops and destinations.
+- Explore transport connections across Lisbon, Almada, and Setúbal.
+
+### 2. Timetable-Based Journey Planning
+- Find scheduled journeys for the next two hours.
+- Retrieve available public transport connections.
+- Explore alternative journey options.
+
+### 3. Multi-Modal Route Planning
+- Combine metro, train, bus, and other transport services.
+- Discover connections involving multiple transport modes.
+- Support regional public transport journey planning.
+
+### 4. Interactive Map Visualization
+- Visualize selected journey itineraries.
+- Explore transport routes using interactive maps.
+- Use Leaflet and OpenStreetMap for map visualization.
+
+## 🏗️ System Architecture
+
+The application follows a modular full-stack architecture.
+
+```text
+                 User
+                  |
+                  v
+          React Frontend
+         TypeScript + Vite
+                  |
+                  v
+           REST API Calls
+                  |
+                  v
+          FastAPI Backend
+                  |
+                  v
+        Journey Planning Logic
+                  |
+                  v
+       Transport Timetable Data
+                  |
+                  v
+        Journey Results / Routes
+                  |
+                  v
+        Leaflet Interactive Map
+          OpenStreetMap
 ```
 
-In another terminal:
+## 🛠️ Technology Stack
 
-```powershell
+| Area | Technologies |
+|---|---|
+| Frontend | React, TypeScript, Vite |
+| Backend | Python, FastAPI |
+| Cloud Platform | Microsoft Azure |
+| Frontend Hosting | Azure Static Web Apps |
+| Backend Hosting | Azure Container Apps |
+| Container Registry | Azure Container Registry (ACR) |
+| CI/CD | GitHub Actions |
+| Mapping | Leaflet, OpenStreetMap |
+| Version Control | Git, GitHub |
+
+## ☁️ Microsoft Azure Deployment
+
+The application is deployed on Microsoft Azure, with separate hosting services for the frontend and backend.
+
+**Deployment components:**
+
+- **Azure Static Web Apps:** Hosts the React frontend and provides public access to the journey planning application.
+- **Azure Container Apps:** Runs the containerized FastAPI backend.
+- **Azure Container Registry (ACR):** Stores and manages backend Docker container images.
+- **GitHub Actions:** Automates the CI/CD workflow for application deployment.
+
+The frontend communicates with the backend through REST API requests, enabling users to access the application through its public Azure deployment.
+
+### Deployment Architecture
+
+```text
+             GitHub Repository
+                    |
+                    v
+             GitHub Actions
+               CI / CD
+                    |
+          +---------+---------+
+          |                   |
+          v                   v
+   Azure Static Web     Azure Container
+       Apps                  Registry
+          |                   |
+          v                   v
+   React Frontend       Docker Image
+                              |
+                              v
+                       Azure Container
+                           Apps
+                              |
+                              v
+                         FastAPI
+                          Backend
+```
+
+## 💻 Run Locally
+
+### Prerequisites
+
+- Python
+- Node.js and npm
+- Git
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/spqdot/smart-city-ai-agent.git
+cd smart-city-ai-agent
+```
+
+### 2. Backend Setup
+
+Install the backend dependencies according to the project configuration.
+
+Start the FastAPI application:
+
+```bash
+uvicorn main:app --reload
+```
+
+Backend URL:
+
+```text
+http://localhost:8000
+```
+
+API documentation:
+
+```text
+http://localhost:8000/docs
+```
+
+### 3. Frontend Setup
+
+Open a separate terminal:
+
+```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-Without `frontend/.env`, Vite calls the local API at `http://localhost:8000`. The journey API uses the same deterministic search service and local timetables as the Streamlit planner.
+Open the local development URL displayed by Vite.
 
-## Data required by the API
+## 📚 Key Learning Outcomes
 
-Transport data is deliberately excluded from Git. The local `data/` directory is about 1.64 GB and contains raw GTFS input that should not be committed. The API needs a smaller runtime bundle containing the bus timetable index, stop and graph files, each `data/modes/<mode>/` directory, and the MST schedule snapshot.
+This project provided practical experience in:
 
-Create that bundle locally:
+- Developing a full-stack application using React and FastAPI.
+- Designing and integrating REST APIs.
+- Implementing timetable-based public transport journey planning.
+- Supporting multi-modal transport route discovery.
+- Integrating interactive maps using Leaflet and OpenStreetMap.
+- Containerizing backend applications.
+- Deploying frontend and backend services independently on Microsoft Azure.
+- Managing Docker images using Azure Container Registry.
+- Automating CI/CD workflows with GitHub Actions.
+- Building and deploying a cloud-hosted application.
 
-```powershell
-python scripts/package_runtime_data.py
-```
+## 🔮 Future Enhancements
 
-The script creates `runtime-data.zip` at the repository root. Upload it as a release asset at a URL that Render can access over HTTPS. Do not put the archive in the Git repository. Make sure you have permission to redistribute the timetable files before making an asset public. Regenerate the bundle when you update the operator feeds.
+- Integration with additional real-time public transport data sources.
+- Improved journey optimization and route recommendations.
+- Real-time transport disruption notifications.
+- Enhanced accessibility and mobility options.
+- AI-powered personalized journey recommendations.
 
-If the runtime bundle is absent, `/api/health` still reports that the process is alive, while stop and journey requests return a clear data-unavailable error.
+## 👩‍💻 Author
 
-## GitHub repository
+**Shrabani Panigrahi**
 
-The source is hosted at [spqdot/smart-city-ai-agent](https://github.com/spqdot/smart-city-ai-agent). The `.gitignore` keeps `.env`, Python environments, Node build output, pytest scratch files, and all of `data/` out of Git. Never commit API keys.
+AI Engineer | Generative AI | Python | Full-Stack AI Applications | Cloud Deployment
 
-## Deploy the backend to Render
+- [GitHub Profile](https://github.com/spqdot)
+- [Project Repository](https://github.com/spqdot/smart-city-ai-agent)
 
-The root `render.yaml` defines the FastAPI web service and installs only its lean Python dependencies. In Render, choose **New → Blueprint** and connect the GitHub repository. Before deploying, configure these service environment variables:
+---
 
-- `SMARTCITY_DATA_ARCHIVE_URL`: HTTPS download URL for `runtime-data.zip`.
-- `SMARTCITY_DATA_ARCHIVE_SHA256`: optional SHA-256 checksum of that ZIP.
-- `CORS_ORIGINS`: the Vercel production origin, such as `https://lisbon-journey-planner.vercel.app` (no trailing slash).
+*Building practical technology solutions that connect software engineering, cloud computing, and real-world urban mobility challenges.*
 
-Render's build command downloads and installs the bundle into the deployed image, then starts `uvicorn api.main:app`. The `/api/health` route checks process health; use `/docs` to inspect API routes. The free Render web service sleeps when idle and has an ephemeral filesystem, so data is installed during each build instead of being written at runtime. A sleeping free service can take about a minute to wake up.
-
-## Deploy the FastAPI backend to Azure Container Apps
-
-The root `Dockerfile` runs the existing FastAPI entry point on port `8000`. It intentionally excludes the local `data/` directory from the build context and installs the runtime bundle during the image build, matching the existing Render deployment model.
-
-Build the image with an HTTPS archive URL and, optionally, its SHA-256 checksum:
-
-```powershell
-docker build `
-  --build-arg SMARTCITY_DATA_ARCHIVE_URL=https://YOUR-HOST/runtime-data.zip `
-  --build-arg SMARTCITY_DATA_ARCHIVE_SHA256=YOUR_ARCHIVE_SHA256 `
-  --tag YOUR_REGISTRY.azurecr.io/smart-city-ai-agent:latest .
-```
-
-Push that image to a registry Azure Container Apps can pull from, then create or update the Container App to use it. Enable external HTTP ingress with **target port `8000`**. The container command is already configured to run:
-
-```text
-uvicorn api.main:app --host 0.0.0.0 --port 8000
-```
-
-`SMARTCITY_DATA_ARCHIVE_URL` is required at image-build time. `SMARTCITY_DATA_ARCHIVE_SHA256` is optional but recommended. Do not rely on setting these values only as Container App runtime environment variables: the archive installer runs while the image is built, before Streamlit starts. Rebuild and redeploy the image whenever the runtime data bundle changes.
-
-## Deploy the frontend to Vercel
-
-Import the same GitHub repository as a Vercel project and set **Root Directory** to `frontend`. Vercel detects Vite; use `npm run build` and `dist` if it asks for the build command or output directory. Set the production environment variable:
-
-```text
-VITE_API_URL=https://YOUR-RENDER-SERVICE.onrender.com
-```
-
-After the frontend deploys, copy its production origin into Render's `CORS_ORIGINS`, then redeploy the backend. The map uses public OpenStreetMap tiles.
-
-## Troubleshooting
-
-### The deployed planner intermittently shows no stop suggestions
-
-The deployed frontend at `https://smart-city-ai-agent.vercel.app` calls the Render API at `https://smart-city-ai-agent.onrender.com`. On Render's Free plan, the API sleeps after inactivity. Its next request may take about a minute while the process and transit data start again.
-
-Wait about a minute and reload the planner. You can verify that the API is ready at:
-
-```text
-https://smart-city-ai-agent.onrender.com/api/health
-```
-
-An `{"status":"ok"}` response means the API is running. To avoid cold starts permanently, use an always-on Render instance.
-
-### The local frontend cannot find stops
-
-Start the API before opening the frontend:
-
-```powershell
-uvicorn api.main:app --reload --port 8000
-```
-
-Then verify `http://localhost:8000/api/health`. The API root (`http://localhost:8000/`) intentionally has no route and returns `{"detail":"Not Found"}`.
-
-## Existing local Streamlit dashboard
-
-```powershell
-streamlit run app.py
-```
+**Technologies:** `Python` `FastAPI` `React` `TypeScript` `Azure` `Docker` `GitHub Actions` `Leaflet` `OpenStreetMap`
